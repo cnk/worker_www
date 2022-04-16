@@ -1,4 +1,4 @@
-import { defaultCache, errorHandler } from '../src/handler'
+import { defaultCache, errorHandler, responseCachable } from '../src/handler'
 import makeServiceWorkerEnv from 'service-worker-mock'
 
 declare var global: any
@@ -21,5 +21,16 @@ describe('handle', () => {
     expect(result.status).toEqual(500)
     const text = await result.text()
     expect(text).toEqual('Something bad happened')
+  })
+})
+
+
+describe('responseCachable', () => {
+  test('private responses not cachable', () => {
+    const response = new Response(
+      'throwaway body',
+      {'status': 200, 'headers': {'Cache-Control': 'public'}}
+    )
+    expect(responseCachable(response)).toEqual(false)
   })
 })
