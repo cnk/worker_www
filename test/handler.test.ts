@@ -24,13 +24,36 @@ describe('handle', () => {
   })
 })
 
-
 describe('responseCachable', () => {
-  test('private responses not cachable', () => {
-    const response = new Response(
-      'throwaway body',
-      {'status': 200, 'headers': {'Cache-Control': 'public'}}
-    )
+  test('responses are not cacheable by default', () => {
+    const response = new Response('throwaway body', {
+      status: 200,
+      headers: {},
+    })
+    expect(responseCachable(response)).toEqual(false)
+  })
+
+  test('public responses are cachable', () => {
+    const response = new Response('throwaway body', {
+      status: 200,
+      headers: { 'Cache-Control': 'public, max-age=30, s-max-age=30' },
+    })
+    expect(responseCachable(response)).toEqual(true)
+  })
+
+  test('private responses are not cachable', () => {
+    const response = new Response('throwaway body', {
+      status: 200,
+      headers: { 'Cache-Control': 'private, max-age=0' },
+    })
+    expect(responseCachable(response)).toEqual(false)
+  })
+
+  test('responses with cookies are not cachable', () => {
+    const response = new Response('throwaway body', {
+      status: 200,
+      headers: { 'set-cookie': 'sessionid=randomstring; HttpOnly; Path=/; SameSite=lax; Secure' },
+    })
     expect(responseCachable(response)).toEqual(false)
   })
 })
