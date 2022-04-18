@@ -1,4 +1,9 @@
-import { defaultCache, errorHandler, responseCachable } from '../src/handler'
+import {
+  buildCacheKey,
+  defaultCacheStrategy,
+  errorHandler,
+  responseCachable,
+} from '../src/handler'
 import makeServiceWorkerEnv from 'service-worker-mock'
 
 declare var global: any
@@ -10,7 +15,9 @@ describe('handle', () => {
   })
 
   test('handle GET', async () => {
-    const result = await defaultCache(new Request('/', { method: 'GET' }))
+    const result = await defaultCacheStrategy(
+      new Request('/', { method: 'GET' }),
+    )
     expect(result.status).toEqual(200)
     const text = await result.text()
     expect(text).toEqual('request method: GET')
@@ -52,8 +59,28 @@ describe('responseCachable', () => {
   test('responses with cookies are not cachable', () => {
     const response = new Response('throwaway body', {
       status: 200,
-      headers: { 'set-cookie': 'sessionid=randomstring; HttpOnly; Path=/; SameSite=lax; Secure' },
+      headers: {
+        'set-cookie':
+          'sessionid=randomstring; HttpOnly; Path=/; SameSite=lax; Secure',
+      },
     })
     expect(responseCachable(response)).toEqual(false)
+  })
+})
+
+describe('buildCacheKey', () => {
+  test('returns string containing the url', () => {
+    const request = new Request('/')
+    expect(buildCacheKey(request)).toEqual('/')
+  })
+
+  test('returns string containing the url', () => {
+    const request = new Request('/foo/bar/baz')
+    expect(buildCacheKey(request)).toEqual('/foo/bar/baz')
+  })
+
+  test('returns url with query string sorted', () => {
+    const request = new Request('/search?q=test&order=date')
+    expect(buildCacheKey(request)).toEqual('/search?order=date&q=test')
   })
 })

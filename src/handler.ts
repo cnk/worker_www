@@ -8,6 +8,10 @@ export async function errorHandler(error: Error): Promise<Response> {
 }
 
 export function responseCachable(response: Response): boolean {
+  /*
+  CNK do we want to change this rule to responses with cookies named 'session'?
+  I suspect so since that is the equivalent of our current Cache Everything rules
+  */
   if (response.headers.get('set-cookie')) {
     return false
   }
@@ -20,6 +24,32 @@ export function responseCachable(response: Response): boolean {
   return false
 }
 
-export async function defaultCache(request: Request): Promise<Response> {
+export function buildCacheKey(request: Request): string {
+  const requestUrl = new URL(request.url)
+  let href = requestUrl.pathname || ''
+  if (requestUrl.search != '') {
+    requestUrl.searchParams.sort()
+    href = href + '?' + requestUrl.searchParams
+  }
+  if (requestUrl.hash) {
+    href = href + requestUrl.hash
+  }
+  return href
+}
+
+export async function defaultCacheStrategy(
+  request: Request,
+): Promise<Response> {
+  // Construct the cache key from the cache URL
+  const cacheKey = new Request(buildCacheKey(request), request)
+  const cache = caches.default
+
+  // Check whether the value is already available in the cache
+  // if not, you will need to fetch it from origin, and store it in the cache
+  // for future access
+  const response = await cache.match(cacheKey)
+
+  console.log(response)
+
   return new Response(`request method: ${request.method}`)
 }
