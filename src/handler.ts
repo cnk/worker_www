@@ -1,5 +1,3 @@
-import { Request } from 'itty-router'
-
 export async function errorHandler(error: Error): Promise<Response> {
   return new Response(error.message || 'Something went wrong.', {
     status: 500,

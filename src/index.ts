@@ -15,6 +15,10 @@ router.all('*', (request) => defaultCacheStrategy(request))
 This snippet ties our worker to the router we deifned above, all incoming requests
 are passed to the router where our routes are called and the response is sent.
 */
-addEventListener('fetch', (event) => {
-  event.respondWith(router.handle(event.request).catch(errorHandler))
-})
+export async function handleRequest(request: Request): Promise<Response> {
+  return router.handle(request).catch(errorHandler)
+}
+
+const worker: ExportedHandler = { fetch: handleRequest };
+
+export default worker;

@@ -1,21 +1,17 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "module": "commonjs",
     "target": "esnext",
+    "module": "esnext",
     "lib": ["esnext"],
-    "alwaysStrict": true,
-    "strict": true,
-    "preserveConstEnums": true,
+    "types": ["@cloudflare/workers-types"],
     "moduleResolution": "node",
-    "sourceMap": true,
+    "strict": true,
+    "noEmit": true,
     "esModuleInterop": true,
-    "types": [
-      "@cloudflare/workers-types",
-      "@types/jest",
-      "@types/service-worker-mock"
-    ]
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "test"]
+  "include": ["src/**/*", "bindings.d.ts"]
 }
