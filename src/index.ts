@@ -19,6 +19,6 @@ export async function handleRequest(request: Request): Promise<Response> {
   return router.handle(request).catch(errorHandler)
 }
 
-const worker: ExportedHandler = { fetch: handleRequest };
+const worker: ExportedHandler = { fetch: handleRequest }
 
-export default worker;
+export default worker

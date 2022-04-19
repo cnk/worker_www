@@ -1,19 +1,16 @@
-import {
-  defaultCacheStrategy,
-  errorHandler,
-} from '../src/handler';
-import makeServiceWorkerEnv from 'service-worker-mock';
-import { Cache } from "@miniflare/cache";
-import { MemoryStorage } from "@miniflare/storage-memory";
+import { defaultCacheStrategy, errorHandler } from '../src/handler'
+import makeServiceWorkerEnv from 'service-worker-mock'
+import { Cache } from '@miniflare/cache'
+import { MemoryStorage } from '@miniflare/storage-memory'
 
 declare var global: any
 
 describe('handle', () => {
   beforeAll(() => {
-    const clock = { timestamp: 1_000_000 }; // 1000s
-    const clockFunction = () => clock.timestamp;
-    const storage = new MemoryStorage(undefined, clockFunction);
-    // const cache = new Cache(storage, { clock: clockFunction });
+    const clock = { timestamp: 1_000_000 } // 1000s
+    const clockFunction = () => clock.timestamp
+    const storage = new MemoryStorage(undefined, clockFunction)
+    // const cache = new Cache(storage, { clock: clockFunction })
   })
 
   beforeEach(() => {

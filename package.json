@@ -6,6 +6,7 @@
   "main": "./dist/index.mjs",
   "scripts": {
     "build": "node build.js",
+    "types:check": "tsc && tsc -p test/tsconfig.json",
     "dev": "miniflare --live-reload --debug",
     "format": "prettier --write  '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
     "lint": "eslint --max-warnings=0 src && prettier --check '*.{json,js}' 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",

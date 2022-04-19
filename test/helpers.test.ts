@@ -1,7 +1,4 @@
-import {
-  buildCacheKey,
-  responseCachable,
-} from '../src/handler'
+import { buildCacheKey, responseCachable } from '../src/handler'
 import makeServiceWorkerEnv from 'service-worker-mock'
 
 declare var global: any
