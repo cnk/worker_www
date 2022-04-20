@@ -21,6 +21,12 @@ $ npm run lint  # Lint complains eslint does not officially support my version o
 $ npm run types:check
 ```
 
+To start the miniflare environment in debug mode, run the following:
+
+```shell
+miniflare --debug --upstream https://example.com/ dist/index.mjs
+```
+
 ### 🧪 Testing
 
 This template comes with jest tests which simply test that the request handler

@@ -47,17 +47,17 @@ describe('buildCacheKey', () => {
   })
 
   test('returns string containing the url', () => {
-    const request = new Request('/')
-    expect(buildCacheKey(request)).toEqual('/')
+    const request = new Request('https://www.test.com/')
+    expect(buildCacheKey(request)).toEqual('https://www.test.com/')
   })
 
   test('returns string containing the url', () => {
-    const request = new Request('/foo/bar/baz')
-    expect(buildCacheKey(request)).toEqual('/foo/bar/baz')
+    const request = new Request('https://www.test.com/foo/bar/baz')
+    expect(buildCacheKey(request)).toEqual('https://www.test.com/foo/bar/baz')
   })
 
   test('returns url with query string sorted', () => {
-    const request = new Request('/search?q=test&order=date')
-    expect(buildCacheKey(request)).toEqual('/search?order=date&q=test')
+    const request = new Request('https://www.test.com/search?q=test&order=date')
+    expect(buildCacheKey(request)).toEqual('https://www.test.com/search?order=date&q=test')
   })
 })

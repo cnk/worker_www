@@ -21,6 +21,7 @@ describe('handle', () => {
   test('handle GET', async () => {
     const result = await defaultCacheStrategy(
       new Request('/', { method: 'GET' }),
+      new ExecutionContext(),
     )
     expect(result.status).toEqual(200)
     const text = await result.text()
