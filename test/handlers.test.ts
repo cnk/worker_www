@@ -1,28 +1,23 @@
+// import { ExecutionContext } from '@miniflare/core'
 import { defaultCacheStrategy, errorHandler } from '../src/handler'
-import makeServiceWorkerEnv from 'service-worker-mock'
-import { Cache } from '@miniflare/cache'
-import { MemoryStorage } from '@miniflare/storage-memory'
 
-declare var global: any
+class ExecutionContext {
+  promises: Promise<any>[] = [];
+  waitUntil(promise: Promise<any>) { this.promises.push(promise); }
+  passThroughOnException() {}
+}
 
 describe('handle', () => {
-  beforeAll(() => {
-    const clock = { timestamp: 1_000_000 } // 1000s
-    const clockFunction = () => clock.timestamp
-    const storage = new MemoryStorage(undefined, clockFunction)
-    // const cache = new Cache(storage, { clock: clockFunction })
-  })
-
   beforeEach(() => {
-    Object.assign(global, makeServiceWorkerEnv())
     jest.resetModules()
   })
 
   test('handle GET', async () => {
-    const result = await defaultCacheStrategy(
-      new Request('/', { method: 'GET' }),
-      new ExecutionContext(),
-    )
+    const request = new Request('https://www.test.com/', { method: 'GET' })
+    const ctx = new ExecutionContext()
+    const result = await defaultCacheStrategy(request, ctx)
+    await Promise.all(ctx.promises);
+
     expect(result.status).toEqual(200)
     const text = await result.text()
     expect(text).toEqual('request method: GET')
