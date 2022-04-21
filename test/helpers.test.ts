@@ -58,6 +58,8 @@ describe('buildCacheKey', () => {
 
   test('returns url with query string sorted', () => {
     const request = new Request('https://www.test.com/search?q=test&order=date')
-    expect(buildCacheKey(request)).toEqual('https://www.test.com/search?order=date&q=test')
+    expect(buildCacheKey(request)).toEqual(
+      'https://www.test.com/search?order=date&q=test',
+    )
   })
 })

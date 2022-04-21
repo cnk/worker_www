@@ -36,16 +36,16 @@ export function buildCacheKey(request: Request): string {
 }
 
 // https://developers.cloudflare.com/cache/how-to/configure-cache-status-code/#edge-ttl
-const edgeTTLByStatus = {
+export function edgeTTLByStatus(status_code: number): number {
   // Cache for a while or until purged
-  200: 600,
-  301: 600,
-  404: 600,
+  if ([200, 301, 404].indexOf(status_code) !== -1) {
+    return 600
+  }
   // cache for a short while
-  302: 60,
-  303: 60,
-  403: 60,
-  410: 60,
+  if ([302, 303, 403, 410].indexOf(status_code) !== -1) {
+    return 60
+  }
+  return 0
 }
 
 export async function defaultCacheStrategy(
@@ -78,8 +78,8 @@ export async function defaultCacheStrategy(
     // Any changes made to the response here will be reflected in the cached value
     // Store the fetched response as cacheKey
     // Use waitUntil so you can return the response without blocking on writing to cache
-    const cacheTime = 300 // edgeTTLByStatus[response.status] || 0
-    if (cacheTime && responseCachable.bind(response)) {
+    const cacheTime = edgeTTLByStatus(response.status)
+    if (cacheTime > 0 && responseCachable.bind(response)) {
       response.headers.append('cache-control', 's-maxage=' + cacheTime)
       console.log(
         `Caching ${request.url} : ${response.headers.get('cache-control')}`,
