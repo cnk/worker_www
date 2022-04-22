@@ -15,3 +15,14 @@ dir = "dist"
 main = "./index.mjs"
 
 [miniflare]
+upstream = ""
+# cache = true
+# cache_persist = "./cache"
+
+[miniflare.https]
+key = ""
+cert = ""
+
+[env.test]
+zone_id = ""
+route = ""

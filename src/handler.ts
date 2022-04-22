@@ -10,6 +10,7 @@ export function responseCachable(response: Response): boolean {
   CNK do we want to change this rule to responses with cookies named 'session'?
   I suspect so since that is the equivalent of our current Cache Everything rules
   */
+  // console.log(response.headers)
   if (response.headers.get('set-cookie')) {
     return false
   }
@@ -79,14 +80,13 @@ export async function defaultCacheStrategy(
     // Store the fetched response as cacheKey
     // Use waitUntil so you can return the response without blocking on writing to cache
     const cacheTime = edgeTTLByStatus(response.status)
-    if (cacheTime > 0 && responseCachable.bind(response)) {
+    if (cacheTime > 0 && responseCachable(response)) {
       response.headers.append('cache-control', 's-maxage=' + cacheTime)
       console.log(
         `Caching ${request.url} : ${response.headers.get('cache-control')}`,
       )
       // response.headers.set('cf-cache-status', 'MISS')
       ctx.waitUntil(cache.put(cacheKey, response.clone()))
-      cache.put(cacheKey, response.clone())
     } else {
       console.log(
         `Not caching ${request.url} : response code ${response.status}`,
@@ -94,7 +94,6 @@ export async function defaultCacheStrategy(
     }
   } else {
     console.log(`Cache hit for: ${request.url}.`)
-    console.log(response.headers)
   }
   return response
 }

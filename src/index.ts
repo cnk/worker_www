@@ -1,5 +1,4 @@
 import { defaultCacheStrategy, errorHandler } from './handler'
-// import { Request } from '@cloudflare/workers-types'
 import { Router } from 'itty-router'
 
 // Create a new router
@@ -21,7 +20,7 @@ export async function handleRequest(
   _env: Bindings,
   ctx: ExecutionContext,
 ): Promise<Response> {
-  return router.handle(request, ctx) // .catch(errorHandler)
+  return router.handle(request, ctx).catch(errorHandler)
 }
 
 const worker: ExportedHandler<Bindings> = { fetch: handleRequest }
