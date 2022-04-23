@@ -36,6 +36,27 @@ export function buildCacheKey(request: Request): string {
   return href
 }
 
+export function headerHasValue(headers: Headers, headerName: string, search: RegExp): boolean {
+  const matches = headers.get(headerName)?.match(search)
+  if (matches) {
+    return true
+  } else {
+    return false
+  }
+}
+
+export function responseHasServerCacheTime(response: Response): boolean {
+  if (response.headers.has('cache-control')) {
+    return (
+      headerHasValue(response.headers, 'cache-control', /s-maxage=(\d+)/) ||
+      headerHasValue(response.headers, 'cloudflare-cdn-cache-control', /max-age=(\d+)/) ||
+      headerHasValue(response.headers, 'cdn-cache-control', /max-age=(\d+)/)
+    )
+  } else {
+    return false
+  }
+}
+
 // https://developers.cloudflare.com/cache/how-to/configure-cache-status-code/#edge-ttl
 export function edgeTTLByStatus(status_code: number): number {
   // Cache for a while or until purged
@@ -78,8 +99,11 @@ export async function defaultCacheStrategy(request: Request, ctx: ExecutionConte
     // Use waitUntil so you can return the response without blocking on writing to cache
     const cacheTime = edgeTTLByStatus(response.status)
     if (cacheTime > 0 && responseCachable(response)) {
-      response.headers.append('cache-control', 's-maxage=' + cacheTime)
-      console.log(`Caching ${request.url} : ${response.headers.get('cache-control')}`)
+      if (!responseHasServerCacheTime(response)) {
+        response.headers.append('cloudflare-cdn-cache-control', 'max-age=' + cacheTime)
+        console.log(`Adding CF Cache control: ${response.headers.get('cloudflare-cdn-cache-control')}`)
+      }
+      console.log(`Caching ${request.url} :  ${response.headers.get('cache-control')}`)
       // response.headers.set('cf-cache-status', 'MISS')
       ctx.waitUntil(cache.put(cacheKey, response.clone()))
     } else {

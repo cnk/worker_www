@@ -60,3 +60,27 @@ describe('buildCacheKey', () => {
     expect(buildCacheKey(request)).toEqual('https://www.test.com/search?order=date&q=test')
   })
 })
+
+describe('headerHasValue', () => {
+  test('returns true if value found', () => {
+    const headers = new Headers({
+      'cache-control': 'public, max-age=20140, s-maxage=20140',
+    })
+    expect(headerHasValue(headers, 'cache-control', /s-maxage=(\d+)/)).toBeTruthy()
+  })
+
+  test('returns false if value not found', () => {
+    const headers = new Headers({
+      'cache-control': 'public, max-age=20140, must-revalidate, no-transform',
+    })
+    expect(headerHasValue(headers, 'cache-control', /s-maxage=(\d+)/)).toBeFalsy()
+  })
+
+  test('returns false if value in a different header', () => {
+    const headers = new Headers({
+      'cache-control': 'public, max-age=20140, must-revalidate, no-transform',
+      'cdn-cache-control': 'public, max-age=20140, no-transform',
+    })
+    expect(headerHasValue(headers, 'cdn-cache-control', /must-revalidate/)).toBeFalsy()
+  })
+})
