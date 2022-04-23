@@ -49,10 +49,7 @@ export function edgeTTLByStatus(status_code: number): number {
   return 0
 }
 
-export async function defaultCacheStrategy(
-  request: Request,
-  ctx: ExecutionContext,
-): Promise<Response> {
+export async function defaultCacheStrategy(request: Request, ctx: ExecutionContext): Promise<Response> {
   // Construct the cache key from the cache URL
   const cacheKey = buildCacheKey(request)
   const cache = caches.default
@@ -82,15 +79,11 @@ export async function defaultCacheStrategy(
     const cacheTime = edgeTTLByStatus(response.status)
     if (cacheTime > 0 && responseCachable(response)) {
       response.headers.append('cache-control', 's-maxage=' + cacheTime)
-      console.log(
-        `Caching ${request.url} : ${response.headers.get('cache-control')}`,
-      )
+      console.log(`Caching ${request.url} : ${response.headers.get('cache-control')}`)
       // response.headers.set('cf-cache-status', 'MISS')
       ctx.waitUntil(cache.put(cacheKey, response.clone()))
     } else {
-      console.log(
-        `Not caching ${request.url} : response code ${response.status}`,
-      )
+      console.log(`Not caching ${request.url} : response code ${response.status}`)
     }
   } else {
     console.log(`Cache hit for: ${request.url}.`)

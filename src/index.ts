@@ -15,11 +15,7 @@ router.all('*', (request, ctx) => defaultCacheStrategy(request, ctx))
 This snippet ties our worker to the router we deifned above, all incoming requests
 are passed to the router where our routes are called and the response is sent.
 */
-export async function handleRequest(
-  request: Request,
-  _env: Bindings,
-  ctx: ExecutionContext,
-): Promise<Response> {
+export async function handleRequest(request: Request, _env: Bindings, ctx: ExecutionContext): Promise<Response> {
   return router.handle(request, ctx).catch(errorHandler)
 }
 

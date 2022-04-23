@@ -1,4 +1,4 @@
-import { buildCacheKey, responseCachable } from '../src/handler'
+import { buildCacheKey, headerHasValue, responseCachable } from '../src/handler'
 import makeServiceWorkerEnv from 'service-worker-mock'
 
 declare var global: any
@@ -32,8 +32,7 @@ describe('responseCachable', () => {
     const response = new Response('throwaway body', {
       status: 200,
       headers: {
-        'set-cookie':
-          'sessionid=randomstring; HttpOnly; Path=/; SameSite=lax; Secure',
+        'set-cookie': 'sessionid=randomstring; HttpOnly; Path=/; SameSite=lax; Secure',
       },
     })
     expect(responseCachable(response)).toEqual(false)
@@ -58,8 +57,6 @@ describe('buildCacheKey', () => {
 
   test('returns url with query string sorted', () => {
     const request = new Request('https://www.test.com/search?q=test&order=date')
-    expect(buildCacheKey(request)).toEqual(
-      'https://www.test.com/search?order=date&q=test',
-    )
+    expect(buildCacheKey(request)).toEqual('https://www.test.com/search?order=date&q=test')
   })
 })
