@@ -1,4 +1,4 @@
-import { buildCacheKey, headerHasValue, responseCachable } from '../src/handler'
+import { buildCacheKey, cacheTimeByStatus, headerHasValue, responseCachable, shortCloudflareCacheTime, defaultCloudflareCacheTime } from '../src/handler'
 import makeServiceWorkerEnv from 'service-worker-mock'
 
 declare var global: any
@@ -45,12 +45,12 @@ describe('buildCacheKey', () => {
     jest.resetModules()
   })
 
-  test('returns string containing the url', () => {
+  test('returns string containing the homepage url', () => {
     const request = new Request('https://www.test.com/')
     expect(buildCacheKey(request)).toEqual('https://www.test.com/')
   })
 
-  test('returns string containing the url', () => {
+  test('returns string containing the full url', () => {
     const request = new Request('https://www.test.com/foo/bar/baz')
     expect(buildCacheKey(request)).toEqual('https://www.test.com/foo/bar/baz')
   })
@@ -82,5 +82,31 @@ describe('headerHasValue', () => {
       'cdn-cache-control': 'public, max-age=20140, no-transform',
     })
     expect(headerHasValue(headers, 'cdn-cache-control', /must-revalidate/)).toBeFalsy()
+  })
+})
+
+describe('cacheTimeByStatus', () => {
+  test('cache 202 OK responses', () => {
+    expect(cacheTimeByStatus(200)).toEqual(defaultCloudflareCacheTime)
+  })
+
+  test('cache 404 Not Found responses', () => {
+    expect(cacheTimeByStatus(404)).toEqual(defaultCloudflareCacheTime)
+  })
+
+  test('cache 301 Permanent Redirect responses', () => {
+    expect(cacheTimeByStatus(301)).toEqual(defaultCloudflareCacheTime)
+  })
+
+  test('cache 302 Temporary Redirect responses for a short time', () => {
+    expect(cacheTimeByStatus(302)).toEqual(shortCloudflareCacheTime)
+  })
+
+  test('cache 403 Forbidden responses for a short time', () => {
+    expect(cacheTimeByStatus(403)).toEqual(shortCloudflareCacheTime)
+  })
+
+  test('do not cache server errors', () => {
+    expect(cacheTimeByStatus(500)).toEqual(0)
   })
 })

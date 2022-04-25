@@ -57,15 +57,18 @@ export function responseHasServerCacheTime(response: Response): boolean {
   }
 }
 
+export const defaultCloudflareCacheTime = 600
+export const shortCloudflareCacheTime = 60
+
 // https://developers.cloudflare.com/cache/how-to/configure-cache-status-code/#edge-ttl
-export function edgeTTLByStatus(status_code: number): number {
+export function cacheTimeByStatus(status_code: number): number {
   // Cache for a while or until purged
   if ([200, 301, 404].indexOf(status_code) !== -1) {
-    return 600
+    return defaultCloudflareCacheTime
   }
   // cache for a short while
   if ([302, 303, 403, 410].indexOf(status_code) !== -1) {
-    return 60
+    return shortCloudflareCacheTime
   }
   return 0
 }
@@ -97,11 +100,11 @@ export async function defaultCacheStrategy(request: Request, ctx: ExecutionConte
     // Any changes made to the response here will be reflected in the cached value
     // Store the fetched response as cacheKey
     // Use waitUntil so you can return the response without blocking on writing to cache
-    const cacheTime = edgeTTLByStatus(response.status)
+    const cacheTime = cacheTimeByStatus(response.status)
     if (cacheTime > 0 && responseCachable(response)) {
       if (!responseHasServerCacheTime(response)) {
         response.headers.append('cloudflare-cdn-cache-control', 'max-age=' + cacheTime)
-        console.log(`Adding CF Cache control: ${response.headers.get('cloudflare-cdn-cache-control')}`)
+        console.log(`Adding CF Cache control: ${response.headers.get('cloudflare-cdn-cache-control')} to ${request.url}`)
       }
       console.log(`Caching ${request.url} :  ${response.headers.get('cache-control')}`)
       // response.headers.set('cf-cache-status', 'MISS')
@@ -109,8 +112,8 @@ export async function defaultCacheStrategy(request: Request, ctx: ExecutionConte
     } else {
       console.log(`Not caching ${request.url} : response code ${response.status}`)
     }
-  } else {
-    console.log(`Cache hit for: ${request.url}.`)
+  // } else {
+  //   console.log(`Cache hit for: ${request.url}.`)
   }
   return response
 }
