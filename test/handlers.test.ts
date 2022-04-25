@@ -1,5 +1,5 @@
 // import { ExecutionContext } from '@miniflare/core'
-import { defaultCacheStrategy, errorHandler } from '../src/handler'
+import { buildCacheKey, defaultCacheStrategy, errorHandler } from '../src/handler'
 
 // Create a fake ExecutionContext to pass to defaultCacheStrategy
 class ExecutionContext {
@@ -18,7 +18,8 @@ describe('handle', () => {
   test('handle GET', async () => {
     const request = new Request('https://test.caltech.edu/about')
     const ctx = new ExecutionContext()
-    const result = await defaultCacheStrategy(request, ctx)
+    const cacheKey = buildCacheKey(request)
+    const result = await defaultCacheStrategy(request, ctx, cacheKey)
     await Promise.all(ctx.promises)
 
     expect(result.status).toEqual(200)
