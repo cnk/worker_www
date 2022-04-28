@@ -1,4 +1,11 @@
-import { buildCacheKey, cacheTimeByStatus, headerHasValue, responseCachable, shortCloudflareCacheTime, defaultCloudflareCacheTime } from '../src/handler'
+import {
+  buildCacheKey,
+  cacheTimeByStatus,
+  headerHasValue,
+  responseCachable,
+  shortCloudflareCacheTime,
+  defaultCloudflareCacheTime,
+} from '../src/handler'
 import makeServiceWorkerEnv from 'service-worker-mock'
 
 declare var global: any
@@ -58,6 +65,22 @@ describe('buildCacheKey', () => {
   test('returns url with query string sorted', () => {
     const request = new Request('https://www.test.com/search?q=test&order=date')
     expect(buildCacheKey(request)).toEqual('https://www.test.com/search?order=date&q=test')
+  })
+
+  test('strip all query string parameters', () => {
+    const request = new Request('https://www.test.com/search?q=test&order=date')
+    expect(buildCacheKey(request, [])).toEqual('https://www.test.com/search')
+  })
+
+  test('removes extra query params from url', () => {
+    const request = new Request('https://www.test.com/search?q=test&order=date&submit=Search')
+    expect(buildCacheKey(request, ['q', 'order'])).toEqual('https://www.test.com/search?order=date&q=test')
+  })
+
+  test('keeps multi-valued param', () => {
+    // CNK NOTE this does not sort the query values
+    const request = new Request('https://www.test.com/search?q=foo&q=bar&submit=Search')
+    expect(buildCacheKey(request, ['q'])).toEqual('https://www.test.com/search?q=foo&q=bar')
   })
 })
 
